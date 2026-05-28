@@ -434,32 +434,29 @@ async function openPage(p) {
   if (p.folderName) {
     thumbsEl.innerHTML = `<div class="pp-loading">⏳ Cargando imágenes...</div>`;
     try {
-      const driveUrl = `https://www.googleapis.com/drive/v3/files?q='${p.folderID}'+in+parents+and+mimeType+contains+'image'&key=${API_KEY}&fields=files(id,name)&orderBy=name`;
+      const match = p.folderName.match(/folders\/([a-zA-Z0-9_-]+)/);
+      const folderId = match ? match[1] : p.folderName;
+      const driveUrl = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+mimeType+contains+'image'&key=${API_KEY}&fields=files(id,name)&orderBy=name`;
       const res = await fetch(driveUrl);
       const data = await res.json();
       const files = data.files || [];
 
       if (files.length > 0) {
-        // Set first drive image as main
-        const firstUrl = `https://wsrv.nl/?url=${encodeURIComponent(`https://lh3.googleusercontent.com/d/${files[0].id}`)}`;
+        const firstUrl = `https://drive.google.com/uc?export=view&id=${files[0].id}`;
         mainEl.innerHTML = `<img src="${firstUrl}" class="pp-img-main" id="ppMainImg" alt="${p.nombre}" onclick="zoomImg(this.src)">`;
 
         thumbsEl.innerHTML = files.map((f,i) => {
-          const imgUrl = `https://wsrv.nl/?url=${encodeURIComponent(`https://lh3.googleusercontent.com/d/${f.id}`)}`;
+          const imgUrl = `https://drive.google.com/uc?export=view&id=${f.id}`;
           return `<img src="${imgUrl}" class="pp-thumb ${i===0?'active':''}" onclick="setMainImg(this, '${imgUrl}')" alt="Vista ${i+1}">`;
         }).join("");
 
       } else {
         thumbsEl.innerHTML = "";
-        if (p.imagen) {
-          thumbsEl.innerHTML = `<img src="${p.imagen}" class="pp-thumb active" alt="Principal">`;
-        }
+        if (p.imagen) thumbsEl.innerHTML = `<img src="${p.imagen}" class="pp-thumb active" alt="Principal">`;
       }
     } catch(e) {
       thumbsEl.innerHTML = "";
-      if (p.imagen) {
-        thumbsEl.innerHTML = `<img src="${p.imagen}" class="pp-thumb active" alt="Principal">`;
-      }
+      if (p.imagen) thumbsEl.innerHTML = `<img src="${p.imagen}" class="pp-thumb active" alt="Principal">`;
     }
   } else if (p.imagen) {
     thumbsEl.innerHTML = `<img src="${p.imagen}" class="pp-thumb active" alt="Principal">`;
