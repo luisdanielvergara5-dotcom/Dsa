@@ -432,7 +432,11 @@ async function openPage(p) {
   const thumbsEl = document.getElementById("ppThumbnails");
   thumbsEl.innerHTML = "";
 
-  const allImgs = (p.extraImages && p.extraImages.length > 0) ? p.extraImages : (p.imagen ? [p.imagen] : []);
+  // Combine cover image (H) + extra images (K-S)
+  let allImgs = [];
+  if (p.imagen) allImgs.push(p.imagen);
+  if (p.extraImages && p.extraImages.length > 0) allImgs = allImgs.concat(p.extraImages);
+
   if (allImgs.length > 0) {
     mainEl.innerHTML = `<img src="${allImgs[0]}" class="pp-img-main" id="ppMainImg" alt="${p.nombre}" onclick="zoomImg(this.src)" onerror="this.style.display='none'">`;
     thumbsEl.innerHTML = allImgs.map((img, i) =>
